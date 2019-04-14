@@ -2,8 +2,12 @@ package com.magenta.prompt;
 
 import java.io.RandomAccessFile;
 import java.util.Scanner;
+
+import com.magenta.service.MagentaDavisBaseService;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MagentaDavisBasePrompt {
 
@@ -16,8 +20,10 @@ public class MagentaDavisBasePrompt {
 
 	private Scanner scanner = new Scanner(System.in).useDelimiter(";");
 	
+	private MagentaDavisBaseService magentaDavisBaseService;
+	
 	public MagentaDavisBasePrompt() {
-		
+		magentaDavisBaseService = new MagentaDavisBaseService();
 	}
 	
     public void prompt() {
@@ -76,12 +82,18 @@ public class MagentaDavisBasePrompt {
 		System.out.println("CREATE [UNIQUE] INDEX ON <table_name> (<column_list>);");
 		System.out.println("\tCreate an index table from <table_name> using <column_list> as a key.\n");
 		
-		System.out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
-		System.out.println("\tDisplay table records whose optional <condition>");
-		System.out.println("\tis <column_name> = <value>.\n");
+		System.out.println("INSERT INTO TABLE (<column_list>) <table_name> VALUES (<value_list>);");
+		System.out.println("\tInsert a new record into the indicated table.\n");
+		
+		System.out.println("DELETE FROM TABLE <table_name> [WHERE row_id = <key_value>];");
+		System.out.println("\tDelete a single row/record from <table_name> given the row_id primary key.\n");
 		
 		System.out.println("UPDATE TABLE <table_name> SET <column_name> = <value> [WHERE <condition>];");
 		System.out.println("\tModify records data whose optional <condition> is\n");
+		
+		System.out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
+		System.out.println("\tDisplay table records whose optional <condition>");
+		System.out.println("\tis <column_name> = <value>.\n");
 		
 		System.out.println("VERSION;");
 		System.out.println("\tDisplay the program version.\n");
@@ -98,10 +110,6 @@ public class MagentaDavisBasePrompt {
 	
 	public long getPageSize() {
 		return pageSize;
-	}
-
-	public void setPageSize(long pageSize) {
-		this.pageSize = pageSize;
 	}
 	
 	public String getVersion() {
@@ -120,29 +128,64 @@ public class MagentaDavisBasePrompt {
 		
 	private void parseUserCommand (String userCommand) {
 		
-		/* commandTokens is an array of Strings that contains one token per array element 
-		 * The first token can be used to determine the type of command 
-		 * The other tokens can be used to pass relevant parameters to each command-specific
-		 * method inside each case statement */
-		// String[] commandTokens = userCommand.split(" ");
 		ArrayList<String> commandTokens = new ArrayList<String>(Arrays.asList(userCommand.split(" ")));
 		
 		switch (commandTokens.get(0)) {
-			case "select":
-				System.out.println("CASE: SELECT");
-				parseQuery(userCommand);
-				break;
-			case "drop":
-				System.out.println("CASE: DROP");
-				dropTable(userCommand);
+			case "show":
+				System.out.println("CASE: SHOW");
+				try {
+					parseShowCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
 				break;
 			case "create":
 				System.out.println("CASE: CREATE");
-				parseCreateTable(userCommand);
+				try {
+					parseCreateCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+				break;
+			case "drop":
+				System.out.println("CASE: DROP");
+				try {
+					parseDropCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+				break;
+			case "insert":
+				System.out.println("CASE: INSERT");
+				try {
+					parseInsertCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+				break;
+			case "delete":
+				System.out.println("CASE: DELETE");
+				try {
+					parseDeleteCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
 				break;
 			case "update":
 				System.out.println("CASE: UPDATE");
-				parseUpdate(userCommand);
+				try {
+					parseUpdateCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
+				break;
+			case "select":
+				System.out.println("CASE: SELECT");
+				try {
+					parseQueryCommand(userCommand, commandTokens);
+				} catch (Exception e) {
+					System.out.println(e);
+				}
 				break;
 			case "help":
 				help();
@@ -153,8 +196,6 @@ public class MagentaDavisBasePrompt {
 			case "exit":
 				isExit = true;
 				break;
-			case "quit":
-				isExit = true;
 			default:
 				System.out.println("I didn't understand the command: \"" + userCommand + "\"");
 				break;
@@ -162,37 +203,39 @@ public class MagentaDavisBasePrompt {
 		return;
 	}
 	
-
-	/**
-	 *  Stub method for dropping tables
-	 *  @param dropTableString is a String of the user input
-	 */
-	public void dropTable(String dropTableString) {
-		System.out.println("STUB: This is the dropTable method.");
-		System.out.println("\tParsing the string:\"" + dropTableString + "\"");
-		return;
+	private void parseShowCommand(String userCommand, List<String> commandTokens) throws Exception{
+		if (commandTokens.size() == 2 && commandTokens.get(1).equals("tables")) {
+			List<String> columnList = new ArrayList<String>(Arrays.asList("table_name"));
+			String tableName = "davisbase_tables";
+			magentaDavisBaseService.executeQuery(columnList, tableName, null);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
-	/**
-	 *  Stub method for executing queries
-	 *  @param queryString is a String of the user input
-	 */
-	public void parseQuery(String queryString) {
-		System.out.println("STUB: This is the parseQuery method");
-		System.out.println("\tParsing the string:\"" + queryString + "\"");
-		return;
+	private void parseCreateCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
 	}
-
-	/**
-	 *  Stub method for updating records
-	 *  @param updateString is a String of the user input
-	 */
-	public void parseUpdate(String updateString) {
-		System.out.println("STUB: This is the dropTable method");
-		System.out.println("Parsing the string:\"" + updateString + "\"");
-		return;
+	
+	private void parseDropCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
 	}
-
+	
+	private void parseInsertCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
+	}
+	
+	private void parseDeleteCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
+	}
+	
+	private void parseUpdateCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
+	}
+	
+	private void parseQueryCommand(String userCommand, List<String> commandTokens) throws Exception{
+		
+	}
 	
 	/**
 	 *  Stub method for creating new tables

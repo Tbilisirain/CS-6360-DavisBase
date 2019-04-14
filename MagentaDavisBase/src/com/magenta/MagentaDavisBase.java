@@ -7,6 +7,7 @@ public class MagentaDavisBase {
 	public static void main(String[] args) {
 		MagentaDavisBasePrompt davisBasePrompt = new MagentaDavisBasePrompt();
 		davisBasePrompt.prompt();
+		return;
 	}
 
 }
