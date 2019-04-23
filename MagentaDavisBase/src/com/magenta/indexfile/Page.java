@@ -1,6 +1,11 @@
 package com.magenta.indexfile;
 import com.magenta.tablefile.*;
+/*
+This file will have followtng methods:
+createPage(), params : File
+createLeafPage(), params: File
 
+*/
 public class Page {
 	Header h;
 	byte noOfRowIds;
@@ -16,5 +21,7 @@ public class Page {
 	public void getRowIds() {
 		
 	}
+
+	
 
 }
