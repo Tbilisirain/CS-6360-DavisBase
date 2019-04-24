@@ -1,5 +1,7 @@
 package com.magenta.indexfile;
 import com.magenta.tablefile.*;
+
+import java.io.IOException;
 import java.io.RandomAccessFile;
 /*
 This file will have followtng methods:
@@ -27,11 +29,17 @@ public class Page {
 	public static int createPage(RandomAccessFile file) {
 		int pages = 0;
 	
-			pages = (int)(file.length()/(new Long(pageSize)));
-			pages = pages + 1;
-			file.setLength(pageSize * pages);
-			file.seek((pages-1) * pageSize);
-			file.writeByte(0x05);  
+			try {
+				pages = (int)(file.length()/(new Long(pageSize)));
+				pages = pages + 1;
+				file.setLength(pageSize * pages);
+				file.seek((pages-1) * pageSize);
+				file.writeByte(0x05);  
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		
 		return pages;
 	}
@@ -39,11 +47,17 @@ public class Page {
 	public static int createLeafPage(RandomAccessFile file) {
 		int pages = 0;
 	
-			pages = (int)(file.length()/(new Long(pageSize)));
-			pages = pages + 1;
-			file.setLength(pageSize * pages);
-			file.seek((pages-1) * pageSize);
-			file.writeByte(0x0D);
+			try {
+				pages = (int)(file.length()/(new Long(pageSize)));
+				pages = pages + 1;
+				file.setLength(pageSize * pages);
+				file.seek((pages-1) * pageSize);
+				file.writeByte(0x0D);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 
 		return pages;
 	}
