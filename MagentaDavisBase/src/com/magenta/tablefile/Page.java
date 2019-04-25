@@ -31,17 +31,21 @@ public class Page {
 	
 	// DDL and DML  methods would be defined here. Page related methods will be called from  Operations.java file
 	
-	public void show() {
+	public static void showDatabase()
+	{
 		
-	}
-	public void showDatabase() {
+		File f= new File("data");
+		String[] listDir = f.list();
 		
+		for(String i:listDir)
+		{
+			if(i.equals("catalog") || i.equals("user_data"))
+				continue;
+			System.out.println(i);
+		}	
 	}
 	// Parameters: Need to figure representation
-	public void drop() {
-		
-	}
-	
+
 	public static void dropDatabase(String database)
 	{
 		File f= new File("data\\"+database);
