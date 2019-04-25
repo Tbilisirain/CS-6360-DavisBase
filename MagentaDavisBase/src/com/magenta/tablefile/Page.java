@@ -62,6 +62,11 @@ public class Page {
 	}
 
 
+	private static void drop(String i, String database) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public void createDatabase(String database) {
 			try 
 		{
