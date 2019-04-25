@@ -19,6 +19,7 @@ public class MagentaDavisBasePrompt {
 	private long pageSize = 512; 
 
 	private Scanner scanner = new Scanner(System.in).useDelimiter(";");
+	static String currentDatabase = "user_data";
 	
 	private MagentaDavisBaseService magentaDavisBaseService;
 	

@@ -1,4 +1,8 @@
 package com.magenta.tablefile;
+import java.io.RandomAccessFile;
+import java.io.File;
+import java.io.FileNotFoundException;
+import com.magenta.prompt.MagentaDavisBasePrompt;
 
 public class Page {
 	Header h;
@@ -18,6 +22,8 @@ public class Page {
 	byte noOfColumns;
 	byte dataTypes[];
 	byte Payload[];// Need to define the payload size based on size of the page.
+
+	MagentaDavisBasePrompt magentaDavisBase = new MagentaDavisBasePrompt();
 	
 	public void Page() {
 		
@@ -38,7 +44,26 @@ public class Page {
 	public void dropDatabase() {
 		
 	}
-	public void createDatabase() {
+	public void createDatabase(String database) {
+			try 
+		{
+			File db = new File("data\\"+database);
+			
+			if(db.exists())
+			{
+				System.out.println("Database already exists");
+				return;
+			}
+			db.mkdir();
+			magentaDavisBase.currentDatabase=database;
+			
+			System.out.println("Database "+database+" created successfully.");
+		}
+		catch (SecurityException se) 
+		{
+			System.out.println("Unable to create catalog directory :"+se);			
+		}
+
 	}
 	public void getPayload() {
 		
