@@ -9,5 +9,11 @@ public class Operations {
 		 // Initialize and if one page fills up, call this method
 	 }
 	 // Parent page operations?
+	 public void getHeader() {
+			
+		}
+		public void getData() { // Relevant record
+			
+		}
 
 }

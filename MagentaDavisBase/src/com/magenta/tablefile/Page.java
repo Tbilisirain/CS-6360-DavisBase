@@ -22,13 +22,33 @@ public class Page {
 	public void Page() {
 		
 	}
-	public void getHeader() {
-		
-	}
-	public void getData() { // Relevant record
-		
-	}
 	
+	// DDL and DML  methods would be defined here. Page related methods will be called from  Operations.java file
+	
+	public void show() {
+		
+	}
+	public void showDatabase() {
+		
+	}
+	// Parameters: Need to figure representation
+	public void drop() {
+		
+	}
+	public void dropDatabase() {
+		
+	}
+	public void createDatabase() {
+	}
+	public void getPayload() {
+		
+	}
+	public void createTable() {
+		// Index file needs to be created based on which is set as primary key
+	}
+	public void insert() {
+		// Inserting into table file and the index file
+	}
 	
 
 }
