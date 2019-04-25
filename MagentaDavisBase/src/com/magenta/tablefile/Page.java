@@ -41,9 +41,23 @@ public class Page {
 	public void drop() {
 		
 	}
-	public void dropDatabase() {
+	
+	public static void dropDatabase(String database)
+	{
+		File f= new File("data\\"+database);
+		String[] listDir = f.list();
 		
+		for(String i:listDir)
+		{
+			if(i.equals("catalog") || i.equals("user_data"))
+				continue;
+			drop(i,database);
+		}
+		File dropFile = new File("data", database); 
+		dropFile.delete();
 	}
+
+
 	public void createDatabase(String database) {
 			try 
 		{
