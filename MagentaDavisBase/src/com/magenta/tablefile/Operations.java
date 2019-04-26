@@ -31,5 +31,21 @@ public class Operations {
 		public void getData() { // Relevant record
 			
 		}
+		public static int createInteriorPage(RandomAccessFile file) {
+			int num_pages = 0;
+			try {
+				num_pages = (int)(file.length()/new Long(pageSize));
+				 num_pages = num_pages+1;
+				 file.setLength(pageSize*num_pages);
+				 file.seek((num_pages-1)*pageSize);
+				 file.writeByte(0x05);
+				
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return num_pages;
+		}
 
 }
