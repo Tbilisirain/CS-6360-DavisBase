@@ -47,5 +47,17 @@ public class Operations {
 			}
 			return num_pages;
 		}
+		public static byte getPageType(RandomAccessFile file,int page) {
+			byte type = 0x05;
+			try {
+				file.seek((page-1)*pageSize);
+				type = file.readByte();
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return type;
+		}
 
 }
