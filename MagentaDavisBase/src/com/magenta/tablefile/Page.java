@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import com.magenta.prompt.MagentaDavisBasePrompt;
 
 public class Page {
-	Header h;
 	//Leaf level info
 	public static final int pageSize = 512;
 	/*

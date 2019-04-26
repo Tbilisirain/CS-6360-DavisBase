@@ -10,7 +10,6 @@ createLeafPage(), params: File
 
 */
 public class Page {
-	Header h;
 	byte noOfRowIds;
 	byte indexType;
 	byte indexValue;
