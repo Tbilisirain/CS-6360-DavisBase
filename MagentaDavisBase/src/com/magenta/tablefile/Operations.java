@@ -99,6 +99,16 @@ public class Operations {
 			}
 			return (short)val;
 		}
-		
+		public static int pages(RandomAccessFile file){
+			int num_pages = 0;
+			try{
+				num_pages = (int)(file.length()/(new Long(pageSize)));
+			}catch(Exception e){
+				System.out.println(e);
+			}
+
+			return num_pages;
+		}
+
 
 }

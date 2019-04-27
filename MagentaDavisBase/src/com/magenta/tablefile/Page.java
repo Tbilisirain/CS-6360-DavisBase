@@ -87,10 +87,23 @@ public class Page {
 		}
 
 	}
-	public void getPayload() {
-		
-	}
-	public void createTable() {
+	// Create string to be parsed.
+	public void createTable(String table, String[] col) {
+		try {
+		RandomAccessFile file = new RandomAccessFile("data/"+table+".tbl","rw");
+		file.setLength((long)pageSize);
+		file.seek(0);
+		file.writeByte(0x0D);
+		file.close();
+		file = new RandomAccessFile("data/davisbase_tables.tbl","rw");
+		int noOfPages = Operations.pages(file);
+		int page = 1;
+		//Incomplete
+		// Getting data from pages. Additional methods need to be defined to write in davisbase_tables and davisbase_columns
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		// Index file needs to be created based on which is set as primary key
 	}
 	public void insert() {
