@@ -59,5 +59,45 @@ public class Operations {
 			}
 			return type;
 		}
+		public static short findPayloadSize(String [] values, String[] datatype) {
+			int val = datatype.length;
+			for(int i = 1;i<datatype.length;i++) {
+				String dt = datatype[i];
+				switch(dt) {
+				case "TINYINT":
+					val = val+1;
+					break;
+				case "SMALLINT":
+					val = val+2;
+					break;
+				case "INT":
+					val = val+4;
+					break;
+				case "BIGINT":
+					val = val+8;
+					break;
+				case "REAL":
+					val = val+4;
+					break;
+				case "DOUBLE":
+					val = val+8;
+					break;
+				case "DATETIME":
+					val = val+8;
+					break;
+				case "DATE":
+					val = val+8;
+					break;
+				case "TEXT":
+					String text = values[i];
+					int len = text.length();
+					val = val+len;
+					break;
+				default:
+					break;
+				}
+			}
+			return (short)val;
+		}
 
 }
