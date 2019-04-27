@@ -53,18 +53,7 @@ public class Operations {
 		}
 		return type;
 	}
-	public static byte getCellNumber(RandomAccessFile file, int page) {
-		byte val = 0;
-		try {
-			file.seek((page-1)*pageSize+1);
-			val = file.readByte();
-			
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		return val;
-	}
+	
 
 	// Additional methods
 
