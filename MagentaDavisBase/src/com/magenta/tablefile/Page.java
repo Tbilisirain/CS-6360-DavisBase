@@ -3,6 +3,7 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import com.magenta.prompt.MagentaDavisBasePrompt;
+import com.magenta.indexfile.*;
 
 public class Page {
 	//Leaf level info
@@ -87,8 +88,33 @@ public class Page {
 		}
 
 	}
-	// Create string to be parsed.
-	public void createTable(String table, String[] col) {
+	public static  void parseCreate(String createString) {
+		System.out.println("Create , Parsing the string");
+		String [] tokens = createString.split(" ");
+		if(tokens[1].compareTo("index")==0) {
+			String col = tokens[4];
+			String colName = col.substring(1, col.length()-1);
+			com.magenta.indexfile.Page.createIndex(tokens[3], colName, "String");
+			
+		}
+		else {
+			if(tokens[1].compareTo("table")>0) {
+				System.out.println("Wrong Syntax");
+			}
+			else {
+				String tableName = tokens[2];
+				String[] temp = createString.split(tableName);
+				String cols = temp[1].trim();
+				String [] createColumns = cols.substring(1, cols.length()-1).split(",");
+				for(int i = 0;i<createColumns.length;i++) {
+					createColumns[i] = createColumns[i].trim();
+				}
+				// Check if table name exists in if
+				createTable(tableName,createColumns);
+			}
+		}
+	}
+	public static void createTable(String table, String[] col) {
 		try {
 		RandomAccessFile file = new RandomAccessFile("data/"+table+".tbl","rw");
 		file.setLength((long)pageSize);

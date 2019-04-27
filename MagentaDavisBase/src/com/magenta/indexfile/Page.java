@@ -10,10 +10,7 @@ createLeafPage(), params: File
 
 */
 public class Page {
-	byte noOfRowIds;
-	byte indexType;
-	byte indexValue;
-	byte[] rowids;
+	
 	public static int pageSize = 512;
 	public void Page() {
 		
@@ -59,6 +56,63 @@ public class Page {
 			
 
 		return pages;
+	}
+	public static void createIndex(String tableName,String colName,String dType) {
+		int serialCode = 0;
+		int recordSize = 0;
+		if(dType.equalsIgnoreCase("int")) {
+			recordSize = recordSize+4;
+			serialCode = 0x06;
+		}
+		else if(dType.equalsIgnoreCase("tinyint")) {
+			recordSize = recordSize+1;
+			serialCode = 0x04;
+		}
+		else if(dType.equalsIgnoreCase("bigint")) {
+			recordSize = recordSize+8;
+			serialCode = 0x07;
+		}
+		else if(dType.equalsIgnoreCase("smallint")) {
+			recordSize = recordSize+2;
+			serialCode = 0x05;
+		}
+		else if(dType.equalsIgnoreCase("real")){
+			recordSize = recordSize+4;
+			serialCode = 0x08;
+		}
+		else if(dType.equalsIgnoreCase("double")) {
+			recordSize = recordSize+8;
+			serialCode = 0x09;
+		}
+		else if(dType.equalsIgnoreCase("datetime")) {
+			recordSize = recordSize+8;
+			serialCode = 0x0A;
+		}
+		else if(dType.equalsIgnoreCase("date")) {
+			recordSize = recordSize+8;
+			serialCode = 0x0B;
+		}
+		else if(dType.equalsIgnoreCase("text")) {
+			serialCode = 0x0C;
+		}
+		int ordinalPos = 0;
+		try {
+			RandomAccessFile column = new RandomAccessFile("data/"+colName+".ndx","rw");
+			column.setLength(pageSize);
+			column.seek(0);
+			column.writeByte(serialCode);
+			int nullVal = 1;
+			column.writeByte(nullVal);
+			column.writeByte(ordinalPos);
+			ordinalPos++;
+			column.writeByte(0x00);
+			column.writeByte(0x10);
+			column.close();
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
