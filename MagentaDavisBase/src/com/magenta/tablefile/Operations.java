@@ -135,6 +135,49 @@ public class Operations {
 			}
 			return loc;
 		}
+		public static void insertInteriorCell(RandomAccessFile file, int page, int child, int key) {
+			try {
+				file.seek((page-1)*pageSize+2);
+				short content = file.readShort();
+				if(content==0) {
+					content = 512;
+				}
+				content = (short) (content-8);
+				file.seek((page-1)*pageSize+content);
+				file.writeInt(child);
+				file.writeInt(key);
+				file.seek((page-1)*pageSize+2);
+				file.writeShort(content);
+				byte num = getCellNumber(file,page);
+				setCellOffset(file,page, num, content);
+				num = (byte) (num+1);
+				setCellNumber(file,page,num);
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		private static void setCellNumber(RandomAccessFile file, int page, byte num) {
+			try {
+				file.seek((page-1)*pageSize+1);
+				file.writeByte(num);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			// TODO Auto-generated method stub
+			
+		}
+		public static void setCellOffset(RandomAccessFile file,int page, int id,int offset) {
+			try {
+				file.seek((page-1)*pageSize+12+id*2);
+				file.writeShort(offset);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 
 }
