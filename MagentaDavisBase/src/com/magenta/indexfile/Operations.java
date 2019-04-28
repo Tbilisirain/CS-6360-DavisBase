@@ -53,7 +53,56 @@ public class Operations {
 		}
 		return type;
 	}
-	
+	public static int findMiddleKey(RandomAccessFile file, int page) {
+		int val = 0;
+		try {
+			file.seek((page-1)*pageSize);
+			byte pageType = file.readByte();
+			int numCells = getCellNumber(file,page);
+			int mid = (int)Math.ceil((double)numCells/2);
+			long loc = getCellLocation(file,page,mid-1);
+			file.seek(loc);
+			switch(pageType) {
+			case 0x05:
+				file.readInt();
+				val = file.readInt();
+				break;
+			case 0x0D:
+				file.readShort();
+				val = file.readShort();
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return val;
+	}
+	public static byte getCellNumber(RandomAccessFile file,int page) {
+		byte val = 0;
+		try {
+			file.seek((page-1)*pageSize+1);
+			val = file.readByte();
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return val;
+	}
+	public static long getCellLocation(RandomAccessFile file, int page, int id) {
+		long loc = 0;
+		try {
+			file.seek((page-1)*pageSize+12+id*2);
+			short offset = file.readShort();
+			long orig = (page-1)*pageSize;
+			loc = orig+offset;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return loc;
+	}
 
 	// Additional methods
 
