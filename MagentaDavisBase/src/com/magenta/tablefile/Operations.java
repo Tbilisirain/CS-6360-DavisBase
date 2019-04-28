@@ -22,15 +22,8 @@ public class Operations {
 		 }
 		 return num_pages;
 		 
-		 // Initialize and if one page fills up, call this method
 	 }
-	 // Parent page operations?
-	 public void getHeader() {
-			
-		}
-		public void getData() { // Relevant record
-			
-		}
+	
 		public static int createInteriorPage(RandomAccessFile file) {
 			int num_pages = 0;
 			try {
@@ -177,6 +170,80 @@ public class Operations {
 			catch(Exception e) {
 				e.printStackTrace();
 			}
+		}
+		public static void sortCellArray(RandomAccessFile file,int page) {
+			byte num = getCellNumber(file,page);
+			int[] keyArray = getKeyArray(file,page);
+			short[] cellArray = getCellArray(file,page);
+			int ltmp;
+			short rtmp;
+			for(int i = 1;i<num;i++) {
+				for(int j = i;j>0;j--) {
+					if(keyArray[j]<keyArray[j-1]) {
+						ltmp = keyArray[j];
+						keyArray[j] = keyArray[j-1];
+						keyArray[j-1] = ltmp;
+						rtmp = cellArray[j];
+						cellArray[j] = cellArray[j-1];
+						cellArray[j-1] = rtmp;
+					}
+				}
+			}
+			try {
+				file.seek((page-1)*pageSize+12);
+				for(int i = 0;i<num;i++) {
+					file.writeShort(cellArray[i]);
+				}
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		private static short[] getCellArray(RandomAccessFile file, int page) {
+			int num = new Integer(getCellNumber(file,page));
+			short [] array = new short[num];
+			try {
+				file.seek((page-1)*pageSize+12);
+				for(int i = 0;i<num;i++) {
+					array[i] = file.readShort();
+				}
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+			// TODO Auto-generated method stub
+			return array;
+		}
+		private static int[] getKeyArray(RandomAccessFile file, int page) {
+			int num = new Integer(getCellNumber(file,page));
+			int [] array = new int[num];
+			try {
+				file.seek((page-1)*pageSize);
+				byte pageType = file.readByte();
+				byte offset = 0;
+				switch(pageType) {
+				case 0x0D:
+					offset = 2;
+					break;
+				case 0x05:
+					offset = 4;
+					break;
+					default:
+						offset = 2;
+						break;
+				}
+				for(int i = 0;i<num;i++) {
+					long loc = getCellLocation(file,page,i);
+					file.seek(loc+offset);
+					array[i] = file.readInt();
+				}
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			// TODO Auto-generated method stub
+			return array;
 		}
 
 
