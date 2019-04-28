@@ -109,6 +109,32 @@ public class Operations {
 
 			return num_pages;
 		}
+		
+		public static byte getCellNumber(RandomAccessFile file,int page) {
+			byte val = 0;
+			try {
+				file.seek((page-1)*pageSize+1);
+				val = file.readByte();
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return val;
+		}
+		public static long getCellLocation(RandomAccessFile file, int page, int id) {
+			long loc = 0;
+			try {
+				file.seek((page-1)*pageSize+12+id*2);
+				short offset = file.readShort();
+				long orig = (page-1)*pageSize;
+				loc = orig+offset;
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return loc;
+		}
 
 
 }
