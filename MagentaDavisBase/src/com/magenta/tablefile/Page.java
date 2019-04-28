@@ -31,6 +31,15 @@ public class Page {
 	
 	// DDL and DML  methods would be defined here. Page related methods will be called from  Operations.java file
 	
+		public static void show()
+		{
+			String[] cols = {"table_name"};
+			String[] cmp = new String[0];
+			String table = "davisbase_tables";
+		
+			select("data\\catalog\\"+table+".tbl",table, cols, cmp);
+		}
+
 	public static void showDatabase()
 	{
 		
