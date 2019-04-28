@@ -37,7 +37,7 @@ public class Page {
 			String[] cmp = new String[0];
 			String table = "davisbase_tables";
 		
-			select("data\\catalog\\"+table+".tbl",table, cols, cmp);
+			//select("data\\catalog\\"+table+".tbl",table, cols, cmp);
 		}
 
 	public static void showDatabase()
