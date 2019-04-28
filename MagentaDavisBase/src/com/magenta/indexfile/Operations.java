@@ -1,14 +1,15 @@
 package com.magenta.indexfile;
 
 import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Operations {
 	Page p;
 	public static final int pageSize = 512;
+	public static final String datePattern = "yyyy-MM-dd_HH:mm:ss";
 	 
-	public void addIndex() {
-		
-	}
+	
 	public static int createNewLeafPage(RandomAccessFile file) {
 		 int num_pages = 0;
 		 try {
@@ -219,6 +220,152 @@ public class Operations {
 		}
 		// TODO Auto-generated method stub
 		return array;
+	}
+	public static void insertLeafCell(RandomAccessFile file,int page, int offset,short plsize,int key, byte[] stc,String [] vals) {
+		try {
+			String s;
+			file.seek((page-1)*pageSize+offset);
+			file.writeShort(plsize);
+			file.writeInt(key);
+			int col = vals.length-1;
+			file.writeByte(col);
+			file.write(stc);
+			for(int i = 1;i<vals.length;i++) {
+				switch(stc[i-1]) {
+				case 0x00:
+					file.writeByte(0);
+					break;
+				case 0x01:
+					file.writeShort(0);
+					break;
+				case 0x02:
+					file.writeInt(0);
+					break;
+				case 0x03:
+					file.writeLong(0);
+					break;
+				case 0x04:
+					file.write(new Byte(vals[i]));
+					break;
+				case 0x05:
+					file.writeShort(new Short(vals[i]));
+					break;
+				case 0x06:
+					file.writeInt(new Integer(vals[i]));
+					break;
+				case 0x07:
+					file.writeLong(new Long(vals[i]));
+					break;
+				case 0x08:
+					file.writeFloat(new Float(vals[i]));
+					break;
+				case 0x09:
+					file.writeDouble(new Double(vals[i]));
+					break;
+				case 0x0A:
+					s = vals[i];
+					Date temp = new SimpleDateFormat(datePattern).parse(s.substring(1, s.length()-1));
+					long time = temp.getTime();
+					file.writeLong(time);
+					break;
+				case 0x0B:
+					s = vals[i];
+					s = s.substring(1,s.length()-1);
+					s = s+"_00:00:00";
+					Date temp2 = new SimpleDateFormat(datePattern).parse(s);
+					long time2 = temp2.getTime();
+					file.writeLong(time2);
+					break;
+					default:
+						file.writeBytes(vals[i]);
+						break;
+					
+				}
+			}
+			int n = getCellNumber(file,page);
+			byte tmp = (byte) (n+1);
+			setCellNumber(file,page,tmp);
+			file.seek((page-1)*pageSize+12+n*2);
+			file.writeShort(offset);
+			file.seek((page-1)*pageSize+2);
+			int content = file.readShort();
+			if(content>=offset||content==0) {
+				file.seek((page-1)*pageSize+2);
+				file.writeShort(offset);
+				
+			}
+					
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void updateLeafCell(RandomAccessFile file,int page, int offset,short plsize,int key, byte[] stc,String [] vals) {
+		try {
+			String s;
+			file.seek((page-1)*pageSize+offset);
+			file.writeShort(plsize);
+			file.writeInt(key);
+			int col = vals.length-1;
+			file.writeByte(col);
+			file.write(stc);
+			for(int i = 1;i<vals.length;i++) {
+				switch(stc[i-1]) {
+				case 0x00:
+					file.writeByte(0);
+					break;
+				case 0x01:
+					file.writeShort(0);
+					break;
+				case 0x02:
+					file.writeInt(0);
+					break;
+				case 0x03:
+					file.writeLong(0);
+					break;
+				case 0x04:
+					file.write(new Byte(vals[i]));
+					break;
+				case 0x05:
+					file.writeShort(new Short(vals[i]));
+					break;
+				case 0x06:
+					file.writeInt(new Integer(vals[i]));
+					break;
+				case 0x07:
+					file.writeLong(new Long(vals[i]));
+					break;
+				case 0x08:
+					file.writeFloat(new Float(vals[i]));
+					break;
+				case 0x09:
+					file.writeDouble(new Double(vals[i]));
+					break;
+				case 0x0A:
+					s = vals[i];
+					Date temp = new SimpleDateFormat(datePattern).parse(s.substring(1, s.length()-1));
+					long time = temp.getTime();
+					file.writeLong(time);
+					break;
+				case 0x0B:
+					s = vals[i];
+					s = s.substring(1,s.length()-1);
+					s = s+"_00:00:00";
+					Date temp2 = new SimpleDateFormat(datePattern).parse(s);
+					long time2 = temp2.getTime();
+					file.writeLong(time2);
+					break;
+					default:
+						file.writeBytes(vals[i]);
+						break;
+					
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 
