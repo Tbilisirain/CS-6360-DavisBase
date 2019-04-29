@@ -2,11 +2,14 @@ package com.magenta.prompt;
 
 import java.io.RandomAccessFile;
 import java.util.Scanner;
+import java.util.Set;
 
+import com.magenta.persistance.TableColumnSetting;
 import com.magenta.service.MagentaDavisBaseService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 public class MagentaDavisBasePrompt {
@@ -23,8 +26,15 @@ public class MagentaDavisBasePrompt {
 	
 	private MagentaDavisBaseService magentaDavisBaseService;
 	
+	private Set<String> supportType;
+	
 	public MagentaDavisBasePrompt() {
-		magentaDavisBaseService = new MagentaDavisBaseService();
+		this.magentaDavisBaseService = new MagentaDavisBaseService();
+		this.supportType = new HashSet<String>(Arrays.asList(
+				"tinynt", "smallint", "int", 
+				"bigint", "long", "float", 
+				"real", "year", "time", 
+				"datetime", "date", "text"));
 	}
 	
     public void prompt() {
@@ -35,8 +45,13 @@ public class MagentaDavisBasePrompt {
 
 		while(!isExit) {
 			System.out.print(prompt);
-			userCommand = scanner.next().replace("\n", " ").replace("\r", "").trim().toLowerCase();
-			parseUserCommand(userCommand);
+			userCommand = scanner.next().replace("\n", "").replace("\r", "").trim().toLowerCase();
+			userCommand = userCommand.replace("\t", "");
+			try {
+				parseUserCommand(userCommand);
+			} catch (Exception e) {
+				System.out.println(e);
+			}
 		}
 		System.out.println("Exiting...");
 		return;
@@ -70,9 +85,8 @@ public class MagentaDavisBasePrompt {
 		System.out.println("\tDisplay the names of all tables.\n");
 		
 		System.out.println("CREATE TABLE <table_name> (");
-		System.out.println("\trow_id INT PRIMARY KEY, ");
-		System.out.println("\t<column_name2> <data_type2> [NOT NULL], ");
-		System.out.println("\t<column_name3> <data_type3> [NOT NULL], ");
+		System.out.println("\t<column_name1> <data_type1> [PRIMARY KEY] [NOT NULL] [UNIQUE], ");
+		System.out.println("\t<column_name2> <data_type2> [PRIMARY KEY] [NOT NULL] [UNIQUE], ");
 		System.out.println("\t...");
 		System.out.println(");");
 		System.out.println("\tCreate a table schema.\n");
@@ -80,19 +94,19 @@ public class MagentaDavisBasePrompt {
 		System.out.println("DROP TABLE <table_name>;");
 		System.out.println("\tRemove table data (i.e. all records) and its schema.\n");
 		
-		System.out.println("CREATE [UNIQUE] INDEX ON <table_name> (<column_list>);");
+		System.out.println("CREATE INDEX ON <table_name> (<column_list>);");
 		System.out.println("\tCreate an index table from <table_name> using <column_list> as a key.\n");
 		
 		System.out.println("INSERT INTO TABLE (<column_list>) <table_name> VALUES (<value_list>);");
 		System.out.println("\tInsert a new record into the indicated table.\n");
 		
-		System.out.println("DELETE FROM TABLE <table_name> [WHERE row_id = <key_value>];");
+		System.out.println("DELETE FROM TABLE <table_name> WHERE <condition>;");
 		System.out.println("\tDelete a single row/record from <table_name> given the row_id primary key.\n");
 		
-		System.out.println("UPDATE TABLE <table_name> SET <column_name> = <value> [WHERE <condition>];");
+		System.out.println("UPDATE TABLE <table_name> SET <column_name> = <value> WHERE <condition>;");
 		System.out.println("\tModify records data whose optional <condition> is\n");
 		
-		System.out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
+		System.out.println("SELECT <column_list> FROM <table_name> WHERE [NOT] <condition>;");
 		System.out.println("\tDisplay table records whose optional <condition>");
 		System.out.println("\tis <column_name> = <value>.\n");
 		
@@ -127,66 +141,38 @@ public class MagentaDavisBasePrompt {
 		return;
 	}
 		
-	private void parseUserCommand (String userCommand) {
+	private void parseUserCommand (String userCommand) throws Exception {
 		
 		ArrayList<String> commandTokens = new ArrayList<String>(Arrays.asList(userCommand.split(" ")));
 		
 		switch (commandTokens.get(0)) {
 			case "show":
 				System.out.println("CASE: SHOW");
-				try {
-					parseShowCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseShowCommand(userCommand, commandTokens);
 				break;
 			case "create":
 				System.out.println("CASE: CREATE");
-				try {
-					parseCreateCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseCreateCommand(userCommand, commandTokens);
 				break;
 			case "drop":
 				System.out.println("CASE: DROP");
-				try {
-					parseDropCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseDropCommand(userCommand, commandTokens);
 				break;
 			case "insert":
 				System.out.println("CASE: INSERT");
-				try {
-					parseInsertCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseInsertCommand(userCommand, commandTokens);
 				break;
 			case "delete":
 				System.out.println("CASE: DELETE");
-				try {
-					parseDeleteCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseDeleteCommand(userCommand, commandTokens);
 				break;
 			case "update":
 				System.out.println("CASE: UPDATE");
-				try {
-					parseUpdateCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseUpdateCommand(userCommand, commandTokens);
 				break;
 			case "select":
 				System.out.println("CASE: SELECT");
-				try {
-					parseQueryCommand(userCommand, commandTokens);
-				} catch (Exception e) {
-					System.out.println(e);
-				}
+				parseQueryCommand(userCommand, commandTokens);
 				break;
 			case "help":
 				help();
@@ -204,22 +190,73 @@ public class MagentaDavisBasePrompt {
 		return;
 	}
 	
-	private void parseShowCommand(String userCommand, List<String> commandTokens) throws Exception{
+	private void parseShowCommand(String userCommand, List<String> commandTokens) throws Exception {
 		if (commandTokens.size() == 2 && commandTokens.get(1).equals("tables")) {
 			List<String> columnList = new ArrayList<String>(Arrays.asList("table_name"));
 			String tableName = "davisbase_tables";
-			magentaDavisBaseService.executeQuery(columnList, tableName, null);
+			magentaDavisBaseService.executeQuery(columnList, tableName, null, false);
 		} else {
 			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
 		}
 	}
 	
 	private void parseCreateCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() == 3 && commandTokens.get(1).equals("index")) {
+			String tableName = commandTokens.get(2);
+			magentaDavisBaseService.createIndex(tableName);
+		} else if (commandTokens.size() > 3 && 
+				userCommand.indexOf(')') > userCommand.indexOf('(') && 
+				userCommand.indexOf('(') >= 0) {
+			String tableName = commandTokens.get(2);
+			String columnSettingString = userCommand.substring(userCommand.indexOf('(') + 1, userCommand.indexOf(')')).trim().replaceAll(" +", " ");
+			String[] columns = columnSettingString.split(",");
+			List<TableColumnSetting> columnSettings = new ArrayList<>();
+			for (String col : columns) {
+				col = col.trim();
+				if (col != null && col.length() != 0) {
+					String[] temp = col.split(" ");
+					if (temp.length >= 2 && temp.length <= 7) {
+						String columnName = temp[0];
+						String dataType = temp[1];
+						if (this.supportType.contains(dataType)) {
+							boolean isPrimaryKey = false;
+							boolean isNotNull = false;
+							boolean isUnique = false;
+							for (int i = 2; i < temp.length; i++) {
+								if (temp[i].equals("primary") && i + 1 < temp.length && temp[i + 1].equals("key")) {
+									isPrimaryKey = true;
+									i++;
+								} else if (temp[i].equals("not") && i + 1 < temp.length && temp[i + 1].equals("null")) {
+									isNotNull = true;
+									i++;
+								} else if (temp[i].equals("unique")) {
+									isUnique = true;
+								} else {
+									throw new Exception("IllegalSyntaxError: Unknown Table Constraint in \"" + col + "\"");
+								}
+							}
+							columnSettings.add(new TableColumnSetting(columnName, dataType, isPrimaryKey, isNotNull, isUnique));
+						} else {
+							throw new Exception("DataTypeError: Unsupport Data Type: " + dataType);
+						}
+					} else {
+						throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+					}
+				}
+			}
+			magentaDavisBaseService.createTable(tableName, columnSettings);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	private void parseDropCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() == 3 && commandTokens.get(1).equals("table")) {
+			String tableName = commandTokens.get(2);
+			magentaDavisBaseService.dropTable(tableName);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	private void parseInsertCommand(String userCommand, List<String> commandTokens) throws Exception{
