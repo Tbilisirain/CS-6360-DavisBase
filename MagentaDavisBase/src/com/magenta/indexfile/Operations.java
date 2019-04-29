@@ -532,6 +532,104 @@ public class Operations {
 			e.printStackTrace();
 		}
 	}
+	public static void splitInteriorPage(RandomAccessFile file,int curPage, int newPage) {
+		try {
+int numCells = getCellNumber(file, curPage);
+			
+			int mid = (int) Math.ceil((double) numCells / 2);
+
+			int numCellA = mid - 1;
+			int numCellB = numCells - numCellA - 1;
+			short content = 512;
+
+			for(int i = numCellA+1; i < numCells; i++){
+				long loc = getCellLocation(file, curPage, i);
+				short cellSize = 8;
+				content = (short)(content - cellSize);
+				file.seek(loc);
+				byte[] cell = new byte[cellSize];
+				file.read(cell);
+				file.seek((newPage-1)*pageSize+content);
+				file.write(cell);
+				file.seek(loc);
+				int page = file.readInt();
+				setParent(file, page, newPage);
+				setCellOffset(file, newPage, i - (numCellA + 1), content);
+			}
+			
+			int tmp = getRightMost(file, curPage);
+			setRightMost(file, newPage, tmp);
+			
+			long midLoc = getCellLocation(file, curPage, mid - 1);
+			file.seek(midLoc);
+			tmp = file.readInt();
+			setRightMost(file, curPage, tmp);
+			
+			file.seek((newPage-1)*pageSize+2);
+			file.writeShort(content);
+			
+			short offset = getCellOffset(file, curPage, numCellA-1);
+			file.seek((curPage-1)*pageSize+2);
+			file.writeShort(offset);
+
+			
+			int parent = getParent(file, curPage);
+			setParent(file, newPage, parent);
+			
+			byte num = (byte) numCellA;
+			setCellNumber(file, curPage, num);
+			num = (byte) numCellB;
+			setCellNumber(file, newPage, num);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void splitLeaf(RandomAccessFile file,int page) {
+		int newPage = createNewLeafPage(file);
+		int midKey = findMiddleKey(file,page);
+		splitLeafPage(file,page,newPage);
+		int parent = getParent(file,page);
+		if(parent==0) {
+			int rootPage = createInteriorPage(file);
+			setParent(file,page,rootPage);
+			setParent(file,newPage,rootPage);
+			setRightMost(file,rootPage,newPage);
+			insertInteriorCell(file,rootPage,page,midKey);
+			
+		}
+		else {
+			long ploc = getPointerLoc(file,page,parent);
+			setPointerLoc(file,ploc,parent,newPage);
+			insertInteriorCell(file,parent,page,midKey);
+			sortCellArray(file,parent);
+			while(checkInteriorSpace(file,parent)) {
+				parent = splitInterior(file,parent);
+			}
+		}
+	}
+	public static int splitInterior(RandomAccessFile file, int page) {
+		int newPage = createInteriorPage(file);
+		int midKey = findMiddleKey(file,page);
+		splitInteriorPage(file,page,newPage);
+		int parent = getParent(file,page);
+		if(parent == 0){
+			int rootPage = createInteriorPage(file);
+			setParent(file, page, rootPage);
+			setParent(file, newPage, rootPage);
+			setRightMost(file, rootPage, newPage);
+			insertInteriorCell(file, rootPage, page, midKey);
+			return rootPage;
+		}else{
+			long ploc = getPointerLoc(file, page, parent);
+			setPointerLoc(file, ploc, parent, newPage);
+			insertInteriorCell(file, parent, page, midKey);
+			sortCellArray(file, parent);
+			return parent;
+		}
+		
+		// TODO Auto-generated method stub
+	}
 	
 
 
