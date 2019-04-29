@@ -219,7 +219,7 @@ public class Operations {
 			// TODO Auto-generated method stub
 			return array;
 		}
-		private static int[] getKeyArray(RandomAccessFile file, int page) {
+		public static int[] getKeyArray(RandomAccessFile file, int page) {
 			int num = new Integer(getCellNumber(file,page));
 			int [] array = new int[num];
 			try {
@@ -1065,6 +1065,7 @@ public class Operations {
 			}
 			return check;
 		}
+		
 			
 
 
