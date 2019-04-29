@@ -316,7 +316,7 @@ public class Page {
 		
 		String[] tokens=dropTableString.split(" ");
 		String tableName = tokens[2];
-		if(!DavisBase.tableExists(tableName)){
+		if(MagentaDavisBasePrompt.tableExists(tableName)){
 			System.out.println("Table "+tableName+" does not exist.");
 		}
 		else
