@@ -393,6 +393,96 @@ public class Operations {
 				e.printStackTrace();
 			}
 		}
+		public static boolean checkInteriorSpace(RandomAccessFile file, int page) {
+			byte numCells = getCellNumber(file,page);
+			if(numCells>30) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		public static int checkLeafSpace(RandomAccessFile file,int page,int size) {
+			int val = -1;
+			try {
+				file.seek((page-1)*pageSize+2);
+				int content = file.readShort();
+				if(content==0) {
+					return pageSize-size;
+				}
+				int numCells = getCellNumber(file,page);
+				int space = content-20-2*numCells;
+				if(size<space) {
+					return content-size;
+				}
+				
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return val;
+		}
+		public static int getParent(RandomAccessFile file , int page) {
+			int val = 0;
+			try {
+				file.seek((page-1)*pageSize+8);
+				val = file.readInt();
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return val;
+		}
+		public static void setParent(RandomAccessFile file,int page, int parent) {
+			try {
+				file.seek((page-1)*pageSize+8);
+				file.writeInt(parent);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		public static int getRightMost(RandomAccessFile file,int page) {
+			int rl =0;
+			try {
+				file.seek((page-1)*pageSize+4);
+				rl = file.readInt();
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return rl;
+		}
+		public static void setRightMost(RandomAccessFile file, int page, int rightLeaf) {
+			try {
+				file.seek((page-1)*pageSize+4);
+				file.writeInt(rightLeaf);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		public static boolean hasKey(RandomAccessFile file,int page, int key) {
+			int [] keys = getKeyArray(file,page);
+			for(int i:keys) {
+				if(key==i) {
+					return true;
+				}
+			}
+			return false;
+		}
+		public static short getCellOffset(RandomAccessFile file, int page,int id) {
+			short offset = 0;
+			try {
+				file.seek((page-1)*pageSize+12+id*2);
+				offset = file.readShort();
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+			return offset;
+		}
+		
 		
 
 
