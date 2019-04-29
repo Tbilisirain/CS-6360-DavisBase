@@ -29,16 +29,31 @@ public class Page {
 		
 	}
 	
-	// DDL and DML  methods would be defined here. Page related methods will be called from  Operations.java file
-	
-		public static void show()
-		{
-			String[] cols = {"table_name"};
-			String[] cmp = new String[0];
-			String table = "davisbase_tables";
+	public static void showTables() {
+		System.out.println("SHOW METHOD");
+		System.out.println("Parsing the string:\"show tables\"");
 		
-			//select("data\\catalog\\"+table+".tbl",table, cols, cmp);
-		}
+		String table = "davisbase_tables";
+		String[] cols = {"table_name"};
+		String[] cmptr = new String[0];
+		select(table, cols, cmptr); 	}
+
+public static void select(String table, String[] cols, String[] cmp){     
+	try{
+		
+		RandomAccessFile file = new RandomAccessFile("data/"+table+".tbl", "rw");
+		String[] columnName = Operations.getColName(table);
+		String[] type = Operations.getDataType(table);
+		
+		Buffer buffer = new Buffer();
+		
+		Operations.filter(file, cmp, columnName, type, buffer);
+		buffer.display(cols);
+		file.close();
+	}catch(Exception e){
+		System.out.println(e);
+	}
+}
 
 	public static void showDatabase()
 	{
@@ -387,6 +402,7 @@ public class Page {
 		}
 
 	}
+
 	
 
 }
