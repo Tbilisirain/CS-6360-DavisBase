@@ -402,6 +402,85 @@ public static void select(String table, String[] cols, String[] cmp){
 		}
 
 	}
+	public static void parseUpdateString(String updateString) {
+		System.out.println("UPDATE METHOD");
+		System.out.println("Parsing the string:\"" + updateString + "\"");
+		
+		String[] tokens=updateString.split(" ");
+		String table = tokens[1];
+		String[] temp1 = updateString.split("set");
+		String[] temp2 = temp1[1].split("where");
+		String cmpTemp = temp2[1];
+		String setTemp = temp2[0];
+		String[] cmp = MagentaDavisBasePrompt.parserEquation(cmpTemp);
+		String[] set = MagentaDavisBasePrompt.parserEquation(setTemp);
+		if(!MagentaDavisBasePrompt.tableExists(table)){
+			System.out.println("Table "+table+" does not exist.");
+		}
+		else
+		{
+			update(table, cmp, set);
+		}
+		
+	}
+	public static void update(String table, String[] cmp, String[] set){
+		try{
+			
+			int key = new Integer(cmp[2]);
+			
+			RandomAccessFile file = new RandomAccessFile("data/"+table+".tbl", "rw");
+			int numPages = Operations.pages(file);
+			int page = 0;
+			for(int p = 1; p <= numPages; p++)
+				if(Operations.hasKey(file, p, key)&Operations.getPageType(file, p)==0x0D){
+					page = p;
+				}
+			
+			if(page==0)
+			{
+				System.out.println("The given key value does not exist");
+				return;
+			}
+			
+			int[] keys = Operations.getKeyArray(file, page);
+			int x = 0;
+			for(int i = 0; i < keys.length; i++)
+				if(keys[i] == key)
+					x = i;
+			int offset = Operations.getCellOffset(file, page, x);
+			long loc = Operations.getCellLocation(file, page, x);
+			
+			String[] cols = Operations.getColName(table);
+			String[] values = Operations.retrieveValues(file, loc);
+
+			String[] type = Operations.getDataType(table);
+			for(int i=0; i < type.length; i++)
+				if(type[i].equals("DATE") || type[i].equals("DATETIME"))
+					values[i] = "'"+values[i]+"'";
+
+			for(int i = 0; i < cols.length; i++)
+				if(cols[i].equals(set[0]))
+					x = i;
+			values[x] = set[2];
+
+			String[] nullable = Operations.getNullable(table);
+			for(int i = 0; i < nullable.length; i++){
+				if(values[i].equals("null") && nullable[i].equals("NO")){
+					System.out.println("NULL-value constraint violation");
+					return;
+				}
+			}
+
+			byte[] stc = new byte[cols.length-1];
+			int plsize = Operations.calPayloadSize(table, values, stc);
+			Operations.updateLeafCell(file, page, offset, (short) plsize, key, stc, values);
+
+			file.close();
+
+		}catch(Exception e){
+			System.out.println(e);
+		}
+	}
 
 	
 
