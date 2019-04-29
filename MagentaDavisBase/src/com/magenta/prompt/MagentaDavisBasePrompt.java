@@ -1,5 +1,6 @@
 package com.magenta.prompt;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
 import java.util.Set;
@@ -73,6 +74,25 @@ public class MagentaDavisBasePrompt {
 			a += s;
 		}
 		return a;
+	}
+	public static boolean tableExists(String tablename){
+		tablename = tablename+".tbl";
+		
+		try {
+			File dataDir = new File("data");
+			String[] oldTableFiles;
+			oldTableFiles = dataDir.list();
+			for (int i=0; i<oldTableFiles.length; i++) {
+				if(oldTableFiles[i].equals(tablename))
+					return true;
+			}
+		}
+		catch (SecurityException se) {
+			System.out.println("Unable to create data container directory");
+			System.out.println(se);
+		}
+
+		return false;
 	}
 	
 	public void help() {
