@@ -456,6 +456,39 @@ public class Operations {
 		}
 		return offset;
 	}
+	public static long getPointerLoc(RandomAccessFile file, int page, int parent) {
+		long val = 0;
+		try {
+			int numCells = new Integer(getCellNumber(file,parent));
+			for(int i = 0;i<numCells;i++) {
+				long loc = getCellLocation(file,parent,i);
+				file.seek(loc);
+				int childPage = file.readInt();
+				if(childPage==page) {
+					val = loc;
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return val;
+	}
+	public static void setPointerLoc(RandomAccessFile file,long loc,int parent, int page) {
+		try {
+			if(loc==0) {
+				file.seek((parent-1)*pageSize+4);
+				
+			}
+			else {
+				file.seek(loc);
+			}
+			file.writeInt(page);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 
 
