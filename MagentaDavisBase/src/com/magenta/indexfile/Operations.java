@@ -489,6 +489,50 @@ public class Operations {
 			e.printStackTrace();
 		}
 	}
+	public static void splitLeafPage(RandomAccessFile file,int curPage,int newPage) {
+		try {
+			int numCells = getCellNumber(file,curPage);
+			int mid = (int) Math.ceil(numCells/2);
+			int numCellA =mid - 1;
+			int numCellB = numCells-numCellA;
+			int content = 512;
+			for(int i = numCellA;i<numCells;i++) {
+				long loc = getCellLocation(file,curPage,i);
+				file.seek(loc);
+				int cellSize = file.readShort()+6;
+				content = content-cellSize;
+				file.seek(loc);
+				byte[] cell = new byte[cellSize];
+				file.read(cell);
+				file.seek((newPage-1)*pageSize+content);
+				file.write(cell);
+				setCellOffset(file,newPage,i-numCellA,content);
+			}
+			file.seek((newPage-1)*pageSize+2);
+			file.writeShort(content);
+			short offset = getCellOffset(file,curPage,numCellA-1);
+			file.seek((curPage-1)*pageSize+2);
+			file.writeShort(offset);
+			int rightMost = getRightMost(file,curPage);
+			setRightMost(file,newPage,rightMost);
+			setRightMost(file,curPage,newPage);
+			int parent = getParent(file,curPage);
+			setParent(file,newPage,parent);
+			byte num = (byte) numCellA;
+			setCellNumber(file,curPage,num);
+			 num = (byte) numCellB;
+			setCellNumber(file,newPage,num);
+			
+			
+			
+			
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 
 
