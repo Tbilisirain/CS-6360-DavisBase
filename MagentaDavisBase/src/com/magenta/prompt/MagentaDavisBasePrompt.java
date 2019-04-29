@@ -94,6 +94,47 @@ public class MagentaDavisBasePrompt {
 
 		return false;
 	}
+	public static String[] parserEquation(String equ){
+		String comparator[] = new String[3];
+		String temp[] = new String[2];
+		if(equ.contains("=")) {
+			temp = equ.split("=");
+			comparator[0] = temp[0].trim();
+			comparator[1] = "=";
+			comparator[2] = temp[1].trim();
+		}
+
+		if(equ.contains("<")) {
+			temp = equ.split("<");
+			comparator[0] = temp[0].trim();
+			comparator[1] = "<";
+			comparator[2] = temp[1].trim();
+	
+		}
+		
+		if(equ.contains(">")) {
+			temp = equ.split(">");
+			comparator[0] = temp[0].trim();
+			comparator[1] = ">";
+			comparator[2] = temp[1].trim();
+		}
+		
+		if(equ.contains("<=")) {
+			temp = equ.split("<=");
+			comparator[0] = temp[0].trim();
+			comparator[1] = "<=";
+			comparator[2] = temp[1].trim();
+		}
+
+		if(equ.contains(">=")) {
+			temp = equ.split(">=");
+			comparator[0] = temp[0].trim();
+			comparator[1] = ">=";
+			comparator[2] = temp[1].trim();
+		}
+		//System.out.println(comparator[1]);
+		return comparator;
+	}
 	
 	public void help() {
 		System.out.println(line("*",80));

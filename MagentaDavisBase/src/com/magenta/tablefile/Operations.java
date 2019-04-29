@@ -155,7 +155,7 @@ public class Operations {
 				e.printStackTrace();
 			}
 		}
-		private static void setCellNumber(RandomAccessFile file, int page, byte num) {
+		public static void setCellNumber(RandomAccessFile file, int page, byte num) {
 			try {
 				file.seek((page-1)*pageSize+1);
 				file.writeByte(num);
@@ -203,7 +203,7 @@ public class Operations {
 				e.printStackTrace();
 			}
 		}
-		private static short[] getCellArray(RandomAccessFile file, int page) {
+		public static short[] getCellArray(RandomAccessFile file, int page) {
 			int num = new Integer(getCellNumber(file,page));
 			short [] array = new short[num];
 			try {
