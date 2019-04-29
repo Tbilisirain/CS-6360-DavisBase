@@ -67,7 +67,7 @@ public class MagentaDavisBasePrompt {
 		return;
 	}
 	
-	private String line(String s,int num) {
+	public static String line(String s,int num) {
 		String a = "";
 		for(int i=0;i<num;i++) {
 			a += s;
