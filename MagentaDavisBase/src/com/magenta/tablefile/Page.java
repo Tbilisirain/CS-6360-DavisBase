@@ -259,7 +259,7 @@ public static void select(String table, String[] cols, String[] cmp){
 		String[] insert_vals = temporary.substring(1, temporary.length()-1).split(",");
 		for(int i = 0; i < insert_vals.length; i++)
 			insert_vals[i] = insert_vals[i].trim();
-		if(MagentaDavisBasePrompt.tableExists(table)){
+		if(!MagentaDavisBasePrompt.tableExists(table)){
 			System.out.println("Table "+table+" does not exist.");
 		}
 		else
@@ -277,7 +277,7 @@ public static void select(String table, String[] cols, String[] cmp){
 		String[] temp = deleteString.split("where");
 		String cmpTemp = temp[1];
 		String[] cmp = MagentaDavisBasePrompt.parserEquation(cmpTemp);
-		if(MagentaDavisBasePrompt.tableExists(table)){
+		if(!MagentaDavisBasePrompt.tableExists(table)){
 			System.out.println("Table "+table+" does not exist.");
 		}
 		else
@@ -331,7 +331,7 @@ public static void select(String table, String[] cols, String[] cmp){
 		
 		String[] tokens=dropTableString.split(" ");
 		String tableName = tokens[2];
-		if(MagentaDavisBasePrompt.tableExists(tableName)){
+		if(!MagentaDavisBasePrompt.tableExists(tableName)){
 			System.out.println("Table "+tableName+" does not exist.");
 		}
 		else
