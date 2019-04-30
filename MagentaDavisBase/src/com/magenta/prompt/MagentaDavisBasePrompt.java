@@ -5,8 +5,8 @@ import java.io.RandomAccessFile;
 import java.util.Scanner;
 import java.util.Set;
 
-import com.magenta.persistance.TableColumnSetting;
 import com.magenta.service.MagentaDavisBaseService;
+import com.magenta.persistance.TableColumnSetting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,30 +15,31 @@ import java.util.List;
 
 public class MagentaDavisBasePrompt {
 
-	private String prompt = "davisql> ";
-	private String version = "v1.0b";
-	private String copyright = "©2019 Magenta Group";
-	private boolean isExit = false;
+	private static String prompt = "davisql> ";
+	private static String version = "v1.0b";
+	private static String copyright = "©2019 Magenta Group";
+	private static boolean isExit = false;
 	
 	private long pageSize = 512; 
 
-	private Scanner scanner = new Scanner(System.in).useDelimiter(";");
+	private static Scanner scanner = new Scanner(System.in).useDelimiter(";");
 	public static String currentDatabase = "user_data";
 	
 	private MagentaDavisBaseService magentaDavisBaseService;
 	
 	private Set<String> supportType;
 	
-	public MagentaDavisBasePrompt() {
+	/*public MagentaDavisBasePrompt() {
 		this.magentaDavisBaseService = new MagentaDavisBaseService();
 		this.supportType = new HashSet<String>(Arrays.asList(
 				"tinynt", "smallint", "int", 
 				"bigint", "long", "float", 
 				"real", "year", "time", 
 				"datetime", "date", "text"));
-	}
+	}*/
 	
-    public void prompt() {
+	public  void prompt() {
+    	Init.init();
 
 		splashScreen();
 		
@@ -58,7 +59,7 @@ public class MagentaDavisBasePrompt {
 		return;
 	}
 
-	private void splashScreen() {
+	public static void splashScreen() {
 		System.out.println(line("-",80));
         System.out.println("Welcome to MagentaDavisBaseLite");
 		System.out.println("DavisBaseLite Version " + getVersion());
@@ -136,7 +137,7 @@ public class MagentaDavisBasePrompt {
 		return comparator;
 	}
 	
-	public void help() {
+	public static void help() {
 		System.out.println(line("*",80));
 		
 		System.out.println("SUPPORTED COMMANDS\n");
@@ -188,52 +189,52 @@ public class MagentaDavisBasePrompt {
 		return pageSize;
 	}
 	
-	public String getVersion() {
+	public static String getVersion() {
 		return version;
 	}
 	
-	public String getCopyright() {
+	public static String getCopyright() {
 		return copyright;
 	}
 	
-	public void displayVersion() {
+	public static void displayVersion() {
 		System.out.println("DavisBaseLite Version " + getVersion());
 		System.out.println(getCopyright());
 		return;
 	}
 		
-	private void parseUserCommand (String userCommand) throws Exception {
+	public static void parseUserCommand (String userCommand) throws Exception {
 		
 		ArrayList<String> commandTokens = new ArrayList<String>(Arrays.asList(userCommand.split(" ")));
 		
 		switch (commandTokens.get(0)) {
 			case "show":
 				System.out.println("CASE: SHOW");
-				parseShowCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.showTables();
 				break;
 			case "create":
 				System.out.println("CASE: CREATE");
-				parseCreateCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.parseCreate(userCommand);
 				break;
 			case "drop":
 				System.out.println("CASE: DROP");
-				parseDropCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.dropTable(userCommand);
 				break;
 			case "insert":
 				System.out.println("CASE: INSERT");
-				parseInsertCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.parseInsertString(userCommand);
 				break;
 			case "delete":
 				System.out.println("CASE: DELETE");
-				parseDeleteCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.parseDeleteString(userCommand);
 				break;
 			case "update":
 				System.out.println("CASE: UPDATE");
-				parseUpdateCommand(userCommand, commandTokens);
+				com.magenta.tablefile.Page.parseDeleteString(userCommand);
 				break;
 			case "select":
 				System.out.println("CASE: SELECT");
-				parseQueryCommand(userCommand, commandTokens);
+				parseQueryString(userCommand);
 				break;
 			case "help":
 				help();
@@ -374,4 +375,39 @@ public class MagentaDavisBasePrompt {
 		 *  i.e. database catalog meta-data 
 		 */
 	}
+	  public static void parseQueryString(String queryString) {
+			System.out.println("STUB: Calling the method to process the command");
+			System.out.println("Parsing the string:\"" + queryString + "\"");
+			
+			String[] cmp;
+			String[] column;
+			String[] temp = queryString.split("where");
+			if(temp.length > 1){
+				String tmp = temp[1].trim();
+				cmp = parserEquation(tmp);
+			}
+			else{
+				cmp = new String[0];
+			}
+			String[] select = temp[0].split("from");
+			String tableName = select[1].trim();
+			String cols = select[0].replace("select", "").trim();
+			if(cols.contains("*")){
+				column = new String[1];
+				column[0] = "*";
+			}
+			else{
+				column = cols.split(",");
+				for(int i = 0; i < column.length; i++)
+					column[i] = column[i].trim();
+			}
+			
+			if(!tableExists(tableName)){
+				System.out.println("Table "+tableName+" does not exist.");
+			}
+			else
+			{
+			    com.magenta.tablefile.Page.select(tableName, column, cmp);
+			}
+		}
 }

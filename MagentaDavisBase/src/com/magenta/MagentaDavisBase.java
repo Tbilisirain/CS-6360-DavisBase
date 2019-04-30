@@ -1,4 +1,5 @@
-package com.magenta;
+package src.com.magenta;
+
 
 
 import com.magenta.prompt.MagentaDavisBasePrompt;
