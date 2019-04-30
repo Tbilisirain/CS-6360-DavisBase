@@ -232,7 +232,7 @@ public class MagentaDavisBasePrompt {
 				break;
 			case "update":
 				System.out.println("CASE: UPDATE");
-				com.magenta.tablefile.Page.parseDeleteString(userCommand);
+				com.magenta.tablefile.Page.parseUpdateString(userCommand);
 				break;
 			case "select":
 				System.out.println("CASE: SELECT");
