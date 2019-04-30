@@ -31,14 +31,14 @@ public class MagentaDavisBasePrompt {
 	
 	private Set<String> supportType;
 	
-	/*public MagentaDavisBasePrompt() {
+	public MagentaDavisBasePrompt() {
 		this.magentaDavisBaseService = new MagentaDavisBaseService();
 		this.supportType = new HashSet<String>(Arrays.asList(
 				"tinynt", "smallint", "int", 
 				"bigint", "long", "float", 
 				"real", "year", "time", 
 				"datetime", "date", "text"));
-	}*/
+	}
 	
 	public  void prompt() {
     	Init.init();
