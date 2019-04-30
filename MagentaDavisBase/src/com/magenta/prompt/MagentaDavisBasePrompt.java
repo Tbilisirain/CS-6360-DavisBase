@@ -1,4 +1,4 @@
-package src.com.magenta.prompt;
+package com.magenta.prompt;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.magenta.service.MagentaDavisBaseService;
 import com.magenta.persistance.TableColumnSetting;
+import com.magenta.prompt.Init;
 
 import java.util.ArrayList;
 import java.util.Arrays;
