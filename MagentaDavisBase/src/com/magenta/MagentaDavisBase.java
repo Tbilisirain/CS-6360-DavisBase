@@ -1,7 +1,6 @@
 package src.com.magenta;
 
 
-
 import com.magenta.prompt.MagentaDavisBasePrompt;
 
 public class MagentaDavisBase {

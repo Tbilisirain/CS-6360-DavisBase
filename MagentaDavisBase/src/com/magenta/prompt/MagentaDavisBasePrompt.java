@@ -1,5 +1,4 @@
-package com.magenta.prompt;
-
+package src.com.magenta.prompt;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
