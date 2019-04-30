@@ -10,8 +10,10 @@ import com.magenta.persistance.TableColumnSetting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class MagentaDavisBasePrompt {
 
@@ -205,7 +207,7 @@ public class MagentaDavisBasePrompt {
 		
 	public static void parseUserCommand (String userCommand) throws Exception {
 		
-		ArrayList<String> commandTokens = new ArrayList<String>(Arrays.asList(userCommand.split(" ")));
+		ArrayList<String> commandTokens = new ArrayList<String>(Arrays.asList(userCommand.replaceAll(" +", " ").split(" ")));
 		
 		switch (commandTokens.get(0)) {
 			case "show":
@@ -274,35 +276,37 @@ public class MagentaDavisBasePrompt {
 			String[] columns = columnSettingString.split(",");
 			List<TableColumnSetting> columnSettings = new ArrayList<>();
 			for (String col : columns) {
-				col = col.trim();
-				if (col != null && col.length() != 0) {
-					String[] temp = col.split(" ");
-					if (temp.length >= 2 && temp.length <= 7) {
-						String columnName = temp[0];
-						String dataType = temp[1];
-						if (this.supportType.contains(dataType)) {
-							boolean isPrimaryKey = false;
-							boolean isNotNull = false;
-							boolean isUnique = false;
-							for (int i = 2; i < temp.length; i++) {
-								if (temp[i].equals("primary") && i + 1 < temp.length && temp[i + 1].equals("key")) {
-									isPrimaryKey = true;
-									i++;
-								} else if (temp[i].equals("not") && i + 1 < temp.length && temp[i + 1].equals("null")) {
-									isNotNull = true;
-									i++;
-								} else if (temp[i].equals("unique")) {
-									isUnique = true;
-								} else {
-									throw new Exception("IllegalSyntaxError: Unknown Table Constraint in \"" + col + "\"");
+				if (col != null) {
+					col = col.trim();
+					if (col.length() > 0) {
+						String[] temp = col.split(" ");
+						if (temp.length >= 2 && temp.length <= 7) {
+							String columnName = temp[0];
+							String dataType = temp[1];
+							if (this.supportType.contains(dataType)) {
+								boolean isPrimaryKey = false;
+								boolean isNotNull = false;
+								boolean isUnique = false;
+								for (int i = 2; i < temp.length; i++) {
+									if (temp[i].equals("primary") && i + 1 < temp.length && temp[i + 1].equals("key")) {
+										isPrimaryKey = true;
+										i++;
+									} else if (temp[i].equals("not") && i + 1 < temp.length && temp[i + 1].equals("null")) {
+										isNotNull = true;
+										i++;
+									} else if (temp[i].equals("unique")) {
+										isUnique = true;
+									} else {
+										throw new Exception("IllegalSyntaxError: Unknown Table Constraint in \"" + col + "\"");
+									}
 								}
+								columnSettings.add(new TableColumnSetting(columnName, dataType, isPrimaryKey, isNotNull, isUnique));
+							} else {
+								throw new Exception("DataTypeError: Unsupport Data Type: " + dataType);
 							}
-							columnSettings.add(new TableColumnSetting(columnName, dataType, isPrimaryKey, isNotNull, isUnique));
 						} else {
-							throw new Exception("DataTypeError: Unsupport Data Type: " + dataType);
+							throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
 						}
-					} else {
-						throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
 					}
 				}
 			}
@@ -322,19 +326,103 @@ public class MagentaDavisBasePrompt {
 	}
 	
 	private void parseInsertCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() >= 7 && commandTokens.get(1).equals("into") && commandTokens.get(2).equals("table")) {
+			int columnStringStart = userCommand.indexOf('(');
+			int columnStringEnd = userCommand.indexOf(')');
+			String columnListString = userCommand.substring(columnStringStart + 1, columnStringEnd).trim();
+			
+			int valueStringStart = userCommand.lastIndexOf('(');
+			int valueStringEnd = userCommand.lastIndexOf(')');
+			String valueListString = userCommand.substring(valueStringStart + 1, valueStringEnd).trim();
+			
+			String tableName = null;
+			String tableNameString = userCommand.substring(columnStringEnd + 1, valueStringStart).trim();
+			String[] tableNameStringArray = tableNameString.split(" ");
+			if (tableNameStringArray.length == 2 && tableNameStringArray[1].equals("values")) {
+				tableName = tableNameStringArray[0];
+			} else {
+				throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+			}
+			Map<String, String> columnValueMap = new HashMap<>();
+			if (columnListString.split(",").length == valueListString.split(",").length) {
+				String[] cols = columnListString.split(",");
+				String[] vals = valueListString.split(",");
+				for (int i = 0; i < cols.length; i++) {
+					if (cols[i] != null && vals[i] != null) {
+						String column = cols[i].trim();
+						String value = vals[i].trim();
+						if (column.length() > 0 && value.length() > 0) {
+							columnValueMap.put(column, value);
+						} else {
+							throw new Exception("IllegalSyntaxError: Column List or Value List Syntax Error. ");
+						}
+					} else {
+						throw new Exception("IllegalSyntaxError: Column List or Value List Syntax Error. ");
+					}
+				}
+			} else {
+				throw new Exception("IllegalSyntaxError: Insuffient Column or Value. ");
+			}
+			magentaDavisBaseService.insertIntoTable(tableName, columnValueMap);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	private void parseDeleteCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() == 6 && commandTokens.get(1).equals("from") && commandTokens.get(2).equals("table") && commandTokens.get(4).equals("where")) {
+			String tableName = commandTokens.get(3);
+			String condition = commandTokens.get(5);
+			magentaDavisBaseService.deleteFromTable(tableName, condition);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	private void parseUpdateCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() >= 7 && commandTokens.get(1).equals("table") && commandTokens.get(3).equals("set") && commandTokens.get(commandTokens.size() - 2).equals("where")) {
+			String tableName = commandTokens.get(2);
+			String condition = commandTokens.get(commandTokens.size() - 1);
+			String equalCondition = "";
+			String columnName = null;
+			String value = null;
+			for (int i = 4; i <= commandTokens.size() - 3; i++) {
+				equalCondition = equalCondition + commandTokens.get(i);
+			}
+			if (equalCondition.split("=").length == 2) {
+				columnName = equalCondition.split("=")[0].trim();
+				value = equalCondition.split("=")[1].trim();
+			} else {
+				throw new Exception("IllegalSyntaxError: Equal Condition Syntax Error. ");
+			}
+			magentaDavisBaseService.updateTable(tableName, columnName, value, condition);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	private void parseQueryCommand(String userCommand, List<String> commandTokens) throws Exception{
-		
+		if (commandTokens.size() >= 6) {
+			String condition = commandTokens.get(commandTokens.size() - 1);
+			boolean isNot = commandTokens.get(commandTokens.size() - 2).equals("not");
+			int selectIndex = userCommand.indexOf("select");
+			int fromIndex = userCommand.indexOf("from");
+			int whereIndex = userCommand.indexOf("where");
+			String tableName = userCommand.substring(fromIndex + 4, whereIndex).trim();
+			String columnListString = userCommand.substring(selectIndex + 6, fromIndex).trim();
+			List<String> columnList = new ArrayList<>();
+			for (String col : columnListString.split(",")) {
+				if (col != null) {
+					col = col.trim();
+					if (col.length() > 0) {
+						columnList.add(col);
+					}
+				}
+			}
+			magentaDavisBaseService.executeQuery(columnList, tableName, condition, isNot);
+		} else {
+			throw new Exception("IllegalSyntaxError: " + "I didn't understand the command: \"" + userCommand + "\"");
+		}
 	}
 	
 	/**
